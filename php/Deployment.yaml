@@ -1,0 +1,28 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: php-server
+  labels:
+    name: php-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: php-server
+  template:
+    metadata:
+      labels:
+        app: php-server
+    spec:
+      containers:
+      - name: php-server
+        image: php:7.2-fpm
+        volumeMounts:
+        - name: nginx-data
+          mountPath: /var/www/html/
+        ports:
+        - containerPort: 9000
+      volumes:
+      - name: nginx-data
+        hostPath:
+         path: /var/www/html/
