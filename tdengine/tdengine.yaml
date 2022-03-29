@@ -1,0 +1,119 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: edge-service
+  namespace: edge
+  labels:
+    name: edge-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: edge-service
+  template:
+    metadata:
+      labels:
+        app: edge-service
+    spec:
+      containers:
+      - name: taosdata
+        image: tdengine/tdengine:2.0.18.0
+        imagePullPolicy: IfNotPresent
+        ports:
+          - name: tcp6030
+            protocol: "TCP"
+            containerPort: 6030
+            hostPort: 6030
+          - name: tcp6035
+            protocol: "TCP"
+            containerPort: 6035
+            hostPort: 6035
+          - name: tcp6041
+            protocol: "TCP"
+            containerPort: 6041
+            hostPort: 6041
+          - name: udp6030
+            protocol: "UDP"
+            containerPort: 6030
+            hostPort: 6030
+          - name: udp6031
+            protocol: "UDP"
+            containerPort: 6031
+            hostPort: 6031
+          - name: udp6032
+            protocol: "UDP"
+            containerPort: 6032
+            hostPort: 6032
+          - name: udp6033
+            protocol: "UDP"
+            containerPort: 6033
+            hostPort: 6033
+          - name: udp6034
+            protocol: "UDP"
+            containerPort: 6034
+            hostPort: 6034
+          - name: udp6035
+            protocol: "UDP"
+            containerPort: 6035
+            hostPort: 6035
+          - name: udp6036
+            protocol: "UDP"
+            containerPort: 6036
+            hostPort: 6036
+          - name: udp6037
+            protocol: "UDP"
+            containerPort: 6037
+            hostPort: 6037
+          - name: udp6038
+            protocol: "UDP"
+            containerPort: 6038
+            hostPort: 6038
+          - name: udp6039
+            protocol: "UDP"
+            containerPort: 6039
+            hostPort: 6039
+          - name: udp6040
+            protocol: "UDP"
+            containerPort: 6040
+            hostPort: 6040
+        env:
+        - name: CLUSTER
+          value: "1"
+        - name: TAOS_KEEP
+          value: "3650"
+        - name: TAOS_DEBUG_FLAG
+          value: "135"
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        - name: SERVICE_NAME
+          value: "taosd"
+        - name: STS_NAME
+          value: "tdengine"
+        - name: STS_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: TZ
+          value: "Asia/Shanghai"
+        - name: TAOS_SERVER_PORT
+          value: "6030"
+        - name: TAOS_FIRST_EP
+          value: "$(STS_NAME)-0.$(SERVICE_NAME).$(STS_NAMESPACE).svc.cluster.local:$(TAOS_SERVER_PORT)"
+        - name: TAOS_FQDN
+          value: "$(POD_NAME).$(SERVICE_NAME).$(STS_NAMESPACE).svc.cluster.local"
+        volumeMounts:
+          - name: taosdatadir
+            mountPath: /var/lib/taos
+
+     volumes:
+      - name: taosdatadir
+        hostPath:
+          path: /var/lib/taos
+     - name: zone-info
+        hostPath:
+          path: /usr/share/zoneinfo
+      - name: etc
+        hostPath:
+          path: /etc
