@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: portainer
+  namespace: xjz
+  labels:
+    name: portainer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: portainer
+  template:
+    metadata:
+      labels:
+        app: portainer
+    spec:
+      hostNetwork: true
+      containers:
+      - name: portainer
+        image: portainer/portainer:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+          - name: tcp9000
+            protocol: "TCP"
+            containerPort: 9000
+            hostPort: 9000
+        volumeMounts:
+          - name: dock-sock
+            mountPath: /var/run/docker.sock
+
+      volumes:
+      - name: dock-sock
+        hostPath:
+         path: /var/run/docker.sock      
+          
