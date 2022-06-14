@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins
+  namespace: xjz
+  labels:
+    name: jenkins
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins
+  template:
+    metadata:
+      labels:
+        app: jenkins
+    spec:
+      hostNetwork: true
+      containers:
+      - name: myjenkins
+        image: jenkins/jenkins:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+          - name: tcp8080
+            protocol: TCP
+            containerPort: 8080
+          - name: tcp50000
+            protocol: TCP
+            containerPort: 50000
+        volumeMounts:
+          - name: jenkins-path
+            mountPath: /var/jenkins_home
+
+      volumes:
+      - name: jenkins-path
+        hostPath:
+         path: /var/jenkins_home
+---
+apiVersion: v1
+kind: Service
+metadata:
+ name: jenkins-svc
+ namespace: xjz
+spec:
+ type: NodePort
+ selector:
+   app: jenkins
+ ports:
+ - port: 8080
+   protocol: TCP
+   targetPort: 8080
+   nodePort: 30001
+   name: jenkins-8080
+ - port: 50000
+   protocol: TCP
+   targetPort: 50000
+   nodePort: 30002
+   name: jenkins-50000
