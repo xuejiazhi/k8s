@@ -1,0 +1,51 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: mysql-server
+  labels:
+    app: mysql-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql-server
+  template:
+    metadata:
+      labels:
+        app: mysql-server
+    spec:
+      containers:
+      - name: mysqlserver
+        image: mysql:latest
+        imagePullPolicy: IfNotPresent
+        ports:
+          - name: tcp3306
+            protocol: TCP
+            containerPort: 3306
+            hostPort: 3306
+        env:
+          - name: MYSQL_ROOT_PASSWORD
+            value: "admin@123"
+        volumeMounts:
+          - name: datadir
+            mountPath: /var/lib/mysql
+
+
+      volumes:
+      - name: datadir
+        hostPath:
+          path: /var/lib/mysql
+ ---
+ apiVersion: v1
+kind: Service
+metadata:
+  name: mysqlsvc
+spec:
+  type: ClusterIP
+  selector:
+    app: mysql-server
+  ports:
+    - name: tcp3306
+      protocol: "TCP"
+      port: 3306
+      targetPort: 3306
